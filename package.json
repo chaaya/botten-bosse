@@ -1,0 +1,16 @@
+{
+  "name": "botten-bosse",
+  "version": "1.0.0",
+  "description": "a fun discord bot",
+  "main": "bosse.js",
+  "keywords": [
+    "discord",
+    "bot"
+  ],
+  "author": "elias chaaya & jesper liljegren",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^7.0.1",
+    "require-directory": "^2.1.1"
+  }
+}
