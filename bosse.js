@@ -1,26 +1,33 @@
 var botCommands = require('./commands');
 var Discord = require('discord.js');
 var commandRegExpPattern = new RegExp('/(![a-z|A-Z])\w+/g');
+var config = require('./config.json');
 
 var bot = new Discord.Client();
-bot.loginWithToken('token');
+bot.loginWithToken(config.token);
 
 bot.on('message', function(message) {
-    var command = getCommand(message.content);
-    if(command && command.exec) {
-        command.exec(bot, message);
+    var command = parseCommand(message.content);
+    if(command) {
+        var args = [bot, message].concat(command.args);        
+        command.command.exec.apply(this, args);
     }
+            
 });
 
-
-function getCommand(messageContent) {
-    var commandName = messageContent.match(/(^![a-zA-Z]+)\s*(.*)/);
-    if(commandName) {
-        var commandKey = commandName[0];
-        if(botCommands[commandKey]) {
-            return botCommands[commandKey];
+function parseCommand(input) {
+    var m = input.match(/^!([a-zA-Z]+)\s*(.*)/);    
+    if(m) {        
+        var commandName = m[1];
+        var args = m[2].split(' ');
+        var command = botCommands[commandName];        
+        if(command && command.exec) {            
+            return {
+                command: command,
+                args: args
+            }
         }
+        
+        return null;
     }
-
-    return null;
 }

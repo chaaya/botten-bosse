@@ -3,6 +3,6 @@ module.exports = {
     description: 'Pongs the user back'
 };
 
-function exec(bot, message) {
-    bot.reply(message, 'Pong!');
+function exec(bot, message, p1, p2) {
+    bot.reply(message, 'Pong! ' + p1 + p2);
 }
