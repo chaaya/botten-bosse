@@ -17,7 +17,12 @@ process.stdin.on('data', function (text) {
 });
 
 function readInput(content, bot, message) {
-    bot = getBot(bot);
+    if(!bot) {
+        bot = getMockBot();
+    }
+    if(!message) {
+        message = getMockMessage();
+    }
     var command = parseCommand(content);
     if(command) {
         var args = [bot, message].concat(command.args);
@@ -25,21 +30,27 @@ function readInput(content, bot, message) {
     }
 }
 
-function getBot(bot) {
-    if(bot) {
-        return bot;
-    } else {
-        bot = {
-            sendMessage: function(channel, content) {
-                console.log(message);
-            },
-            reply: function(message, content) {
-                console.log(content);
-            }
-        };
-    }
+function getMockBot() {
+    return {
+        sendMessage: function(channel, content) {
+            console.log(content);
+        },
+        reply: function(message, content) {
+            console.log(content);
+        }
+    };
+}
 
-    return bot;
+function getMockMessage() {
+    return {
+        author: {
+            username: 'EliasZeKing',
+            game: {
+                name: 'Overwatch'
+            }
+        },
+        channel: 'Bronz'
+    };
 }
 
 function parseCommand(input) {
