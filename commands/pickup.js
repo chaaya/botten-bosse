@@ -11,6 +11,7 @@ var pickups = {
 //team sized depending on game
 var games = {
     overwatch: 6,
+    overwatch3on3: 3,
     csgo: 5,
     lol: 5,
     csgo2on2: 2
@@ -25,6 +26,12 @@ function exec(bot, message, command, game, teams) {
             break;
         case 'join':
             join(bot, message, game, pickupId);
+            break;
+        case 'end':
+            end(bot, message, pickupId);
+            break;
+        case 'status':
+            status(bot, message);
             break;
         default:
             bot.reply(message, 'Unrecognizeable !pickup command: ' + command);
@@ -59,6 +66,33 @@ function start(bot, message, game, teams, pickupId) {
     }
 }
 
+function status(bot, message) {
+    var output = 'These are the active pickups in this channel: ' + '\r\n\r\n';
+    _.forEach(pickups, function(pickup, id) {
+        var playerList = _.map(pickup.players, 'username');
+        output += pickup.game + ' - Players ('+ _.size(pickup.players).toString() +'/' + pickup.slots + ') => ' + playerList.join(', ') + '\r\n';
+    });
+
+    bot.reply(message, output);
+}
+
+function end(bot, message, pickupId) {
+    //check if end is called by the creator otherwhise return
+    if(pickups[pickupId]) {
+        console.log('trying to find creator from', pickups[pickupId].players);
+        var pickupCreator = _.find(pickups[pickupId].players, function(player) {
+            return player.isCreator;
+        });
+        if(pickupCreator.username === message.author.username) {
+            var copy = pickups[pickupId];
+            delete pickups[pickupId];
+            bot.sendMessage(message.channel, '@here Pickup for ' + copy.game + ' ended by ' + message.author.username);
+        } else {
+            bot.reply(message, 'You cannot disband this pickup, you are not the creator!!!');
+        }
+    }
+}
+
 function join(bot, message, game, pickupId) {
     if(!pickups[pickupId]) {
         bot.reply(message, 'Their isnt a pickup started for ' + game + ' in this channel. To start a pickup type !pickup start ' + game + ' <teams> (optional if you want to create two teams)');
@@ -75,14 +109,17 @@ function join(bot, message, game, pickupId) {
             if(pickups[pickupId].isMixedTeams) {
                 var mixedTeams = mixTeams(pickups[pickupId].players, games[pickups[pickupId].game]);
                 pickupMessage = '@here Pickup completed for ' + pickups[pickupId].game + '. The teams are => \r\n\r\n'
-                pickupMessage += 'Team1: ' + mixedTeams.team1.join(', ') + '\r\n';
-                pickupMessage += 'Team2: ' + mixedTeams.team2.join(', ');
+                pickupMessage += 'Team1: ' + mixedTeams['1'].join(', ') + '\r\n';
+                pickupMessage += 'Team2: ' + mixedTeams['2'].join(', ');
             } else {
                 var players = _.map(pickups[pickupId].players, 'username');
                 pickupMessage = '@here Pickup completed for ' + pickups[pickupId].game + '. Enjoy your game ' + players.join(', ');
             }
 
+            delete pickups[pickupId];
             bot.sendMessage(message.channel, pickupMessage);
+        } else {
+            bot.reply(message, 'You have joined the pickup for ' + pickups[pickupId].game);
         }
     }
 }
