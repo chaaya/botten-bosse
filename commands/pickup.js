@@ -12,9 +12,9 @@ var pickups = {
 var games = {
     overwatch: 6,
     overwatch3on3: 3,
+    csgo2on2: 2,
     csgo: 5,
     lol: 5,
-    csgo2on2: 2
 };
 
 
@@ -61,8 +61,6 @@ function start(bot, message, game, teams, pickupId) {
         };
 
         bot.sendMessage(message.channel, '@here Pickup started for ' + game + '. To join that pickup type !pickup join ' + game + '.');
-        console.log('pickups in system', pickups);
-        console.log('user', message.author.username);
     }
 }
 
@@ -79,7 +77,6 @@ function status(bot, message) {
 function end(bot, message, pickupId) {
     //check if end is called by the creator otherwhise return
     if(pickups[pickupId]) {
-        console.log('trying to find creator from', pickups[pickupId].players);
         var pickupCreator = _.find(pickups[pickupId].players, function(player) {
             return player.isCreator;
         });
@@ -109,8 +106,8 @@ function join(bot, message, game, pickupId) {
             if(pickups[pickupId].isMixedTeams) {
                 var mixedTeams = mixTeams(pickups[pickupId].players, games[pickups[pickupId].game]);
                 pickupMessage = '@here Pickup completed for ' + pickups[pickupId].game + '. The teams are => \r\n\r\n'
-                pickupMessage += 'Team1: ' + mixedTeams['1'].join(', ') + '\r\n';
-                pickupMessage += 'Team2: ' + mixedTeams['2'].join(', ');
+                pickupMessage += 'Team #1: ' + mixedTeams['1'].join(', ') + '\r\n';
+                pickupMessage += 'Team #2: ' + mixedTeams['2'].join(', ');
             } else {
                 var players = _.map(pickups[pickupId].players, 'username');
                 pickupMessage = '@here Pickup completed for ' + pickups[pickupId].game + '. Enjoy your game ' + players.join(', ');
